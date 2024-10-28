@@ -17,6 +17,8 @@ trait CanReorderRecords
 
     protected string | Closure | null $reorderColumn = null;
 
+    protected string | null $reorderDirection = null;
+
     protected ?Closure $modifyReorderRecordsTriggerActionUsing = null;
 
     public function reorderRecordsTriggerAction(?Closure $callback): static
@@ -33,6 +35,13 @@ trait CanReorderRecords
         if ($condition !== null) {
             $this->isReorderable = $condition;
         }
+
+        return $this;
+    }
+
+    public function reorderableDirection(string $direction): static
+    {
+        $this->reorderDirection = $direction;
 
         return $this;
     }
@@ -67,6 +76,11 @@ trait CanReorderRecords
     public function getReorderColumn(): ?string
     {
         return $this->evaluate($this->reorderColumn);
+    }
+
+    public function getReorderDirection(): string
+    {
+        return $this->defaultSortDirection ?? $this->reorderDirection ?? 'asc';
     }
 
     public function isReorderable(): bool

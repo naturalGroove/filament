@@ -19,6 +19,11 @@ trait CanReorderRecords
         }
 
         $orderColumn = (string) str($this->getTable()->getReorderColumn())->afterLast('.');
+        $orderColumnDirection = $this->getTable()->getReorderDirection();
+
+        if ($orderColumnDirection === 'desc') {
+            $order = array_reverse($order);
+        }
 
         DB::transaction(function () use ($order, $orderColumn) {
             if (
@@ -43,7 +48,7 @@ trait CanReorderRecords
                 ->update([
                     $orderColumn => DB::raw(
                         'case ' . collect($order)
-                            ->map(fn ($recordKey, int $recordIndex): string => 'when ' . $modelKeyName . ' = ' . DB::getPdo()->quote($recordKey) . ' then ' . ($recordIndex + 1))
+                            ->map(fn($recordKey, int $recordIndex): string => 'when ' . $modelKeyName . ' = ' . DB::getPdo()->quote($recordKey) . ' then ' . ($recordIndex + 1))
                             ->implode(' ') . ' end'
                     ),
                 ]);
